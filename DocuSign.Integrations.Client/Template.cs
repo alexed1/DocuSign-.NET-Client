@@ -108,22 +108,12 @@ namespace DocuSign.Integrations.Client
         /// <returns></returns>
         public JObject GetTemplate(string templateId)
         {
-            RequestBuilder builder = new RequestBuilder();
-            RequestInfo req = new RequestInfo();
-            List<RequestBody> requestBodies = new List<RequestBody>();
+            
+            RequestInfo req = new RequestInfo(this.Login);
+            RequestBuilder builder = new RequestBuilder(req, this.Proxy);
 
-            req.RequestContentType = "application/json";
-            req.AcceptContentType = "application/json";
             req.HttpMethod = "GET";
-            req.LoginEmail = this.Login.Email;
-            req.ApiPassword = this.Login.ApiPassword;
-            req.DistributorCode = RestSettings.Instance.DistributorCode;
-            req.DistributorPassword = RestSettings.Instance.DistributorPassword;
-            req.IntegratorKey = RestSettings.Instance.IntegratorKey;
             req.Uri = string.Format("{0}/templates/{1}", this.Login.BaseUrl, templateId);
-
-            builder.Request = req;
-            builder.Proxy = this.Proxy;
 
             ResponseInfo response = builder.MakeRESTRequest();
             this.Trace(builder, response);
@@ -135,6 +125,9 @@ namespace DocuSign.Integrations.Client
 
             return JObject.Parse(response.ResponseText);
         }
+
+
+     
 
         /// <summary>
         /// This retrieves the definition of the specified template.

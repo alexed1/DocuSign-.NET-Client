@@ -75,6 +75,13 @@ namespace DocuSign.Integrations.Client
 #endif
         }
 
+        public RequestBuilder(RequestInfo curRequestInfo, WebProxy curProxy) : base()
+        {
+            this.Request = curRequestInfo;
+            this.Proxy = curProxy;
+        }
+        
+
         /// <summary>
         /// AuthOptions enum
         /// </summary>

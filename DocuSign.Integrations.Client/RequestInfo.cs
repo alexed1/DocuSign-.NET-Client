@@ -35,6 +35,12 @@ namespace DocuSign.Integrations.Client
             this.InitInstance(newLine);
         }
 
+        //this adds the standard load of request parameters
+        public RequestInfo(Account curAccount) : base()
+        {
+            this.InitStandardInstance(curAccount);
+        }
+
         /// <summary>
         /// Gets or sets the FullUrl property
         /// </summary>
@@ -162,6 +168,19 @@ namespace DocuSign.Integrations.Client
             this.IntegratorKey = string.Empty;
             this.BaseUrl = string.Empty;
             this.RequestBody = new RequestBody[0];
+        }
+
+        public void InitStandardInstance(Account curAccount)
+        {
+            List<RequestBody> requestBodies = new List<RequestBody>();
+            this.RequestContentType = "application/json";
+            this.AcceptContentType = "application/json";
+            this.LoginEmail = curAccount.Email;
+            this.ApiPassword = curAccount.ApiPassword;
+            this.DistributorCode = RestSettings.Instance.DistributorCode;
+            this.DistributorPassword = RestSettings.Instance.DistributorPassword;
+            this.IntegratorKey = RestSettings.Instance.IntegratorKey;
+
         }
     }
 }
