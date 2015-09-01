@@ -106,7 +106,7 @@ namespace DocuSign.Integrations.Client
         /// This retrieves the definition of the specified template.
         /// </summary>
         /// <returns></returns>
-        public JObject GetTemplate(string templateId)
+        public JObject GetTemplate(string templateId, string authToken="")
         {
             
             RequestInfo req = new RequestInfo(this.Login);
@@ -115,7 +115,7 @@ namespace DocuSign.Integrations.Client
             req.HttpMethod = "GET";
             req.Uri = string.Format("{0}/templates/{1}", this.Login.BaseUrl, templateId);
 
-            ResponseInfo response = builder.MakeRESTRequest();
+            ResponseInfo response = builder.MakeRESTRequest(authToken="");
             this.Trace(builder, response);
 
             if (response.StatusCode != HttpStatusCode.OK)

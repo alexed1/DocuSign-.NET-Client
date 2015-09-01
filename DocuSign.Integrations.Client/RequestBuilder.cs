@@ -154,13 +154,15 @@ namespace DocuSign.Integrations.Client
         /// Constructs and submits REST request
         /// </summary>
         /// <returns>ResponseInfo object</returns>
-        public ResponseInfo MakeRESTRequest()
+        public ResponseInfo MakeRESTRequest(string authToken = "")
         {
             this.CreateWebRequest();
             this.CreateDocusignCredentials();
             this.SetDistributorCredentials();
             this.SetLogonCredentials();
             this.SetAdditionalHeaders();
+            if (authToken != "")
+                this.SetAuthorizationHeader(authToken);
 
             if (this.Request.IsMultipart)
             {
@@ -177,6 +179,10 @@ namespace DocuSign.Integrations.Client
             return this.responseInfo;
         }
 
+        private void SetAuthorizationHeader(string authToken)
+        {
+            //implement Authorization line in header
+        }
         /// <summary>
         /// Constructs a DocuSignCredentials object.
         /// </summary>
