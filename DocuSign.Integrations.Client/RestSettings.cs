@@ -49,6 +49,10 @@ namespace DocuSign.Integrations.Client
                     if (instance == null)
                     {
                         instance = new RestSettings();
+
+                        // default to Demo environment and latest API version (v2)
+                        instance.DocuSignAddress = "https://demo.docusign.net";
+                        instance.WebServiceUrl = RestSettings.Instance.DocuSignAddress + "/restapi/v2";
                     }
 
                     slim.ExitWriteLock();
@@ -106,5 +110,9 @@ namespace DocuSign.Integrations.Client
         /// Gets or sets the DocuSign Address
         /// </summary>
         public string DocuSignAddress { get; set; }
+        /// <summary>
+        /// Timeout (in miliseconds) to use when making HttpRequests. Not providing a value would would use default
+        /// </summary>
+        public int? RequestTimeout { get; set; }
     }
 }

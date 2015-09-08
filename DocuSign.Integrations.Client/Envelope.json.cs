@@ -103,6 +103,8 @@ namespace DocuSign.Integrations.Client
 
         public CustomFields customFields { get; set; }
 
+        public Notification notification { get; set; }
+
         /// <summary>
         /// Gets or sets the Document property
         /// </summary>
@@ -463,6 +465,11 @@ namespace DocuSign.Integrations.Client
 
         public string useSoapInterface { get; set; }
 
+        /// <summary>
+        /// When set to true, messages are signed with an X509 certificate. This provides support for 2-way SSL in the envelope.
+        /// </summary>
+        public string signMessageWithX509Cert { get; set; }
+
         public string soapNameSpace { get; set; }
 
         public string includeCertificateWithSoap { get; set; }
@@ -711,12 +718,24 @@ namespace DocuSign.Integrations.Client
         //public RoleTab[] titleTabs { get; set; }
         //public RoleTab[] companyTabs { get; set; }
         //public RoleTab[] dateSignedTabs { get; set; }
-        //public RoleTab[] checkboxTabs { get; set; }
+        public CheckboxTab[] checkboxTabs { get; set; }
         //public RoleTab[] signerAttachmentTabs { get; set; }
+        public TemplateRadioGroupTab[] radioGroupTabs { get; set; }
+        public NumberTab[] numberTabs { get; set; }
     }
 
     /// <summary>
-    /// RoleTabs
+    /// RoleTab
+    /// </summary>
+    [Serializable]
+    public class RoleTab
+    {
+        public string name { get; set; }
+        public string value { get; set; }
+    }
+
+    /// <summary>
+    /// RoleTextTab
     /// </summary>
     [Serializable]
     public class RoleTextTab
@@ -725,6 +744,43 @@ namespace DocuSign.Integrations.Client
         public string value { get; set; }
     }
 
+    /// <summary>
+    /// CheckboxTab
+    /// </summary>
+    [Serializable]
+    public class CheckboxTab
+    {
+        public string tabLabel { get; set; }
+        public bool selected { get; set; }
+    }
+
+    /// <summary>
+    /// RadioGroupTab
+    /// </summary>
+    [Serializable]
+    public class TemplateRadioGroupTab
+    {
+        public string groupName { get; set; }
+        public radio[] radios { get; set; }
+    }
+
+    [Serializable]
+    public class radio
+    {
+        public string value { get; set; }
+        public bool selected { get; set; }
+    }
+
+    /// <summary>
+    /// NumberTab
+    /// </summary>
+    [Serializable]
+    public class NumberTab
+    {
+        public string tabLabel { get; set; }
+        public string value { get; set; }
+    }
+    
     /// <summary>
     /// Used for submitting for RESTAPI
     /// </summary>

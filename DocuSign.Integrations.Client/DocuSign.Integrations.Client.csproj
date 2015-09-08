@@ -80,7 +80,7 @@
     <SignAssembly>true</SignAssembly>
   </PropertyGroup>
   <PropertyGroup>
-    <AssemblyOriginatorKeyFile>DocuSignClient.pfx</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>DocuSignClient.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
@@ -103,6 +103,8 @@
   <ItemGroup>
     <Compile Include="Account.cs" />
     <Compile Include="Account.json.cs" />
+    <Compile Include="Expirations.cs" />
+    <Compile Include="Notifications.cs" />
     <Compile Include="RecipientStatusCustomFields.cs" />
     <Compile Include="DateSignedTab.cs" />
     <Compile Include="DistributorCredentials.cs" />
@@ -117,6 +119,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RadioGroupTab.cs" />
     <Compile Include="Radios.cs" />
+    <Compile Include="Reminders.cs" />
     <Compile Include="RequestBody.cs" />
     <Compile Include="RequestBuilder.cs" />
     <Compile Include="RequestDump.cs" />
@@ -128,7 +131,7 @@
     <Compile Include="TextTab.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="DocuSignClient.pfx" />
+    <None Include="DocuSignClient.snk" />
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
