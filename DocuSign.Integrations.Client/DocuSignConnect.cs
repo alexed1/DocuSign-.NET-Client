@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -41,9 +42,27 @@ namespace DocuSign.Integrations.Client
 
             this.RestError.httpStatusCode = response.StatusCode;
         }
+        public ConnectProfile Get()
+        {
+            return MakeRequest<ConnectProfile>("GET", string.Empty, string.Empty);
+        }
 
+        public Configuration Create(Configuration configurations)
+        {
+            return MakeRequest<Configuration>("POST", JsonConvert.SerializeObject(configurations), string.Empty);
+        }
 
-        public JObject Get(string accountId)
+        public Configuration Update(Configuration configurations)
+        {
+            return MakeRequest<Configuration>("PUT", JsonConvert.SerializeObject(configurations), string.Empty);
+        }
+
+        public void Delete(string connectId)
+        {
+            MakeRequest<String>("DELETE", string.Empty, string.Format("/{0}",connectId));
+        }
+
+        private T MakeRequest<T>(string method, string requestBody, string connectId)
         {
             RequestBuilder builder = new RequestBuilder();
             RequestInfo req = new RequestInfo();
@@ -51,39 +70,38 @@ namespace DocuSign.Integrations.Client
 
             req.RequestContentType = "application/json";
             req.AcceptContentType = "application/json";
-            req.HttpMethod = "GET";
+            req.HttpMethod = method;
             req.LoginEmail = this.Login.Email;
             req.ApiPassword = this.Login.ApiPassword;
             req.DistributorCode = RestSettings.Instance.DistributorCode;
             req.DistributorPassword = RestSettings.Instance.DistributorPassword;
             req.IntegratorKey = RestSettings.Instance.IntegratorKey;
-            req.Uri = string.Format("{0}/accounts/{1}/connect", this.Login.BaseUrl, accountId);
+            req.Uri = string.Format("{0}/connect{1}", this.Login.BaseUrl,connectId);
 
             builder.Request = req;
             builder.Proxy = this.Proxy;
 
+            if (!string.IsNullOrEmpty(requestBody))
+            {
+                RequestBody rb = new RequestBody();
+                rb.Text = requestBody;
+                requestBodies.Add(rb);
+                req.RequestBody = requestBodies.ToArray();
+                builder.Request = req;
+            }
             ResponseInfo response = builder.MakeRESTRequest();
             this.Trace(builder, response);
 
             if (response.StatusCode != HttpStatusCode.OK)
             {
                 this.ParseErrorResponse(response);
-                return null;
+               // return null;
             }
-            JObject json = JObject.Parse(response.ResponseText);
+            JsonSerializerSettings settings = new JsonSerializerSettings();
+            settings.NullValueHandling = NullValueHandling.Ignore;
 
-            //var names = new List<string>();
-            //var signers = json["signers"];
-            //foreach (var signer in signers)
-            //    names.Add((string)signer["name"]);
-            //var ccs = json["carbonCopies"];
-            //foreach (var cc in ccs)
-            //    names.Add((string)cc["name"]);
-            //var certifiedDeliveries = json["certifiedDeliveries"];
-            //foreach (var cd in certifiedDeliveries)
-            //    names.Add((string)cd["name"]);
-            //return names;
-            return json;
+            return JsonConvert.DeserializeObject<T>(response.ResponseText);
         }
+
     }
 }

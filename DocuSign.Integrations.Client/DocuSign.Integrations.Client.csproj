@@ -103,6 +103,8 @@
   <ItemGroup>
     <Compile Include="Account.cs" />
     <Compile Include="Account.json.cs" />
+    <Compile Include="DocuSignConnect.cs" />
+    <Compile Include="DocuSignConnect.json.cs" />
     <Compile Include="Expirations.cs" />
     <Compile Include="Notifications.cs" />
     <Compile Include="RecipientStatusCustomFields.cs" />
