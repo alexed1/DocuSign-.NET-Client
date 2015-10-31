@@ -364,7 +364,7 @@ namespace DocuSign.Integrations.Client
 
                 builder.Request = req;
                 builder.Proxy = this.Proxy;
-                
+
                 RequestBody rb = new RequestBody();
                 JsonSerializerSettings settings = new JsonSerializerSettings();
                 settings.NullValueHandling = NullValueHandling.Ignore;
@@ -467,7 +467,7 @@ namespace DocuSign.Integrations.Client
                 req.HttpMethod = "GET";
                 req.LoginEmail = Login.Email;
                 req.LoginPassword = Login.Password;
-                req.ApiPassword = Login.ApiPassword; 
+                req.ApiPassword = Login.ApiPassword;
                 req.DistributorCode = RestSettings.Instance.DistributorCode;
                 req.DistributorPassword = RestSettings.Instance.DistributorPassword;
                 req.IntegratorKey = RestSettings.Instance.IntegratorKey;
@@ -1182,14 +1182,15 @@ namespace DocuSign.Integrations.Client
                 sb.Append("{");
                 sb.AppendFormat("\"status\":\"{0}\"", this.Status);
 
-                if (this.Status == "voided") {
+                if (this.Status == "voided")
+                {
 
                     if (String.IsNullOrEmpty(voidedReason))
                         throw new ArgumentException("The voided reason is required to change status to voided.");
 
                     sb.AppendFormat(", \"voidedReason\":\"{0}\"", voidedReason);
                 }
-                    
+
                 sb.Append("}");
 
                 rb.Text = sb.ToString();
@@ -2230,6 +2231,132 @@ namespace DocuSign.Integrations.Client
 
                 JObject json = JObject.Parse(response.ResponseText);
                 return (int)json["totalRows"];
+
+            }
+            catch
+            {
+                throw;
+            }
+        }
+
+
+        public AccountEnvelopes GetEnvelopes(DateTime fromDate, DateTime toDate, bool includeRecipients, int count)
+        {
+            if (this.Login == null)
+            {
+                throw new ArgumentNullException("Login");
+            }
+
+            if (string.IsNullOrEmpty(this.Login.BaseUrl) == true)
+            {
+                throw new ArgumentNullException("BaseUrl");
+            }
+
+            if (string.IsNullOrEmpty(this.Login.ApiPassword) == true)
+            {
+                throw new ArgumentNullException("ApiPassword");
+            }
+
+
+            try
+            {
+
+                var envs = new List<EnvelopeInfo>();
+                var recipients = new List<RecipientInfo>();
+                string[] searchTypes = { "drafts", "awaiting_my_signature", "completed", "out_for_signature" };
+                foreach (string searchFolderType in searchTypes)
+                {
+
+                    int totalRecords = 0;
+                    int nextstartPosition = 0;
+                    int resultSetCount = 0;
+                    int loopCounter = 0;
+                    int pendingRecordsToFetched = 0;
+                    do
+                    {
+                        string Url = "/search_folders/" + searchFolderType + "?from_date=" + fromDate.ToString() + "&to_date=" + toDate.ToString() + "&include_recipients=" + includeRecipients + "&count=" + count.ToString() + "&start_position=" + nextstartPosition.ToString();
+                        RequestBuilder builder = new RequestBuilder();
+                        RequestInfo req = new RequestInfo();
+                        List<RequestBody> requestBodies = new List<RequestBody>();
+
+                        req.RequestContentType = "multipart/form-data";
+                        req.BaseUrl = this.Login.BaseUrl;
+                        req.LoginEmail = this.Login.Email;
+                        req.ApiPassword = this.Login.ApiPassword;
+                        req.Uri = Url;
+                        req.HttpMethod = "GET";
+                        req.IntegratorKey = RestSettings.Instance.IntegratorKey;
+                        req.IsMultipart = true;
+                        req.MultipartBoundary = new Guid().ToString();
+                        builder.Proxy = this.Proxy;
+
+
+                        RequestBody rb = new RequestBody();
+                        rb.Headers.Add("Content-Type", "application/json");
+
+                        requestBodies.Add(rb);
+
+                        req.RequestBody = requestBodies.ToArray();
+                        builder.Request = req;
+
+                        ResponseInfo response = builder.MakeRESTRequest();
+                        this.Trace(builder, response);
+
+
+
+                        JObject json = JObject.Parse(response.ResponseText);
+                        if (loopCounter == 0)
+                        {
+                            totalRecords = int.Parse((string)json["totalRows"]);
+                            resultSetCount = int.Parse((string)json["resultSetSize"]);
+                            if (totalRecords > 0)
+                            {
+                                nextstartPosition = int.Parse((string)json["endPosition"]) + 1;
+                                pendingRecordsToFetched = totalRecords;
+                                pendingRecordsToFetched -= resultSetCount;
+                            }
+                            else
+                            {
+                                break;
+                            }
+                            ++loopCounter;
+                        }
+                        else
+                        {
+                            resultSetCount = int.Parse((string)json["resultSetSize"]);
+                            nextstartPosition = int.Parse((string)json["endPosition"]) + 1;
+                            pendingRecordsToFetched -= resultSetCount;
+                            ++loopCounter;
+
+                        }
+                        foreach (var item in json["folderItems"])
+                        {
+
+
+                            var ei = new EnvelopeInfo();
+                            ei.EnvelopeId = (string)item["envelopeId"];
+                            ei.Status = (string)item["status"];
+                            ei.SentDate = (string)item["sentDateTime"];
+                            ei.CreateDate = (string)item["createdDateTime"];
+                            ei.CompletedDate = (string)item["completedDateTime"];
+                            ei.StatusChangedDateTime = (string)item["lastModifiedDateTime"];
+                            envs.Add(ei);
+
+                            var recipientString = item["recipients"].ToString();
+                            JObject recipientJson = JObject.Parse(recipientString);
+                            foreach (var recipientItem in recipientJson["signers"])
+                            {
+                                var recipient = new RecipientInfo();
+                                recipient.Object = recipientItem.ToString();
+                                recipient.Status = (string)recipientItem["status"];
+                                recipient.DocuSignAccountId = (string)recipientItem["userId"];
+                                recipient.RecipientId = (string)recipientItem["recipientId"];
+                                recipients.Add(recipient);
+                            }
+                        }
+                    } while (pendingRecordsToFetched > 0);
+                }
+                return new AccountEnvelopes { Envelopes = envs.ToArray(), Recipients = recipients.ToArray() };
 
             }
             catch

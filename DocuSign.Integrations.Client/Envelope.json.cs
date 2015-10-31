@@ -632,6 +632,8 @@ namespace DocuSign.Integrations.Client
         public string PreviousUri { get; set; }
         public EnvelopeInfo[] Envelopes { get; set; }
 
+        public RecipientInfo[] Recipients { get; set; }
+
         //Empty Constructor
         public AccountEnvelopes() { }
 
@@ -662,8 +664,32 @@ namespace DocuSign.Integrations.Client
         public string CertificateUri { get; set; }
         public string TemplatesUri { get; set; }
 
+        public string CompletedDate { get; set; }
+
+        public string CreateDate { get; set; }
+
+        public string DeliveredDate { get; set; }
+
+        public string SentDate { get; set; }
+
         //Empty Constructor
         public EnvelopeInfo() { }
+
+
+    }
+
+    [Serializable]
+    public class RecipientInfo
+    {
+        public string Object { get; set; }
+        public string Status { get; set; }
+        public string DocuSignAccountId { get; set; }
+        public string RecipientId { get; set; }
+    }
+
+    [Serializable]
+    public class ParsingRecordInfo
+    {
 
 
     }
